@@ -31,9 +31,18 @@ struct input_event {
 extern int switch_port(int vendor, int product, int port);
 
 static void trigger_switch_port(int code) {
-/*  fprintf(stderr, "switch port\n");*/
+#ifdef DEBUG
+  fprintf(stderr, "switch port\n");
+#else
   switch_port(VENDOR_ID, PRODUCT_ID, OTHER_PORT);
+#endif
 }
+
+#ifdef DEBUG
+static void trigger_debug(int code) {
+  fprintf(stderr, "pressed %d\n", code);
+}
+#endif
 
 static void handle_event(struct input_event *ie) {
   static time_t last;
@@ -44,7 +53,11 @@ static void handle_event(struct input_event *ie) {
       fn = trigger_switch_port;
       break;
     default:
+#ifdef DEBUG
+      fn = trigger_debug;
+#else
       return;
+#endif
   }
 
   if(ie->value == 1 && ie->type == 1) {
@@ -181,13 +194,17 @@ int main(void) {
     return 1;
   }
 
+  for(i=0;i<MAX_DEVICES;i++)
+    watched_devices[i] = -1;
+
+#ifdef DEBUG
+  open_device(0);
+#else
   if(daemon(0, 0) < 0) {
     fprintf(stderr, "unable to daemonise\n");
     return 1;
   }
-
-  for(i=0;i<MAX_DEVICES;i++)
-    watched_devices[i] = -1;
+#endif
 
   for(;;) {
     time_t now = time(NULL);
