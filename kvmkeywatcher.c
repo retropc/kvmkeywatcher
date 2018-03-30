@@ -1,3 +1,9 @@
+#ifndef DEBUG
+#ifndef __ARM_ARCH
+#error must be compiled with steamlink sdk -- use setenv.sh in steamlink dir
+#endif
+#endif
+
 #define _DEFAULT_SOURCE
 #define _GNU_SOURCE
 
