@@ -1,9 +1,6 @@
 #include <stdio.h>
 #include <usb.h>
 
-#define LED_VENDOR_ID   0x10d5
-#define LED_PRODUCT_ID  0x55a2
-
 static struct usb_device *find_device(int vendor, int product) {
   struct usb_bus *bus;
   struct usb_device *device;
