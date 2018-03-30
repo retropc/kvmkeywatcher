@@ -30,27 +30,35 @@ struct input_event {
 
 extern int switch_port(int vendor, int product, int port);
 
-static void trigger(void) {
-/*  fprintf(stderr, "triggered\n");*/
-
-  pid_t pid = fork();
-  if(pid == -1)
-    return;
-
-  if(pid == 0) {
-    switch_port(VENDOR_ID, PRODUCT_ID, OTHER_PORT);
-    _exit(0);
-  }
+static void trigger_switch_port(int code) {
+/*  fprintf(stderr, "switch port\n");*/
+  switch_port(VENDOR_ID, PRODUCT_ID, OTHER_PORT);
 }
 
 static void handle_event(struct input_event *ie) {
   static time_t last;
+  void (*fn)(int);
 
-  /* numlock */
-  if(ie->code == 69 && ie->value == 1 && ie->type == 1) {
+  switch(ie->code) {
+    case 69: /* numlock */
+      fn = trigger_switch_port;
+      break;
+    default:
+      return;
+  }
+
+  if(ie->value == 1 && ie->type == 1) {
     if(last == ie->time.tv_sec || last + 1 == ie->time.tv_sec) {
       last = 0;
-      trigger();
+
+      pid_t pid = fork();
+      if(pid == -1)
+        return;
+
+      if(pid == 0) {
+        fn(ie->code);
+        _exit(0);
+      }
     } else {
       last = ie->time.tv_sec;
     }
