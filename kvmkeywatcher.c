@@ -36,41 +36,31 @@ struct input_event {
 extern int switch_port(int vendor, int product, int port);
 
 static void trigger_switch_port(int code) {
-#ifdef DEBUG
-  fprintf(stderr, "switch port\n");
-#else
   switch_port(VENDOR_ID, PRODUCT_ID, OTHER_PORT);
-#endif
 }
 
 static void trigger_reboot(int code) {
-#ifdef DEBUG
-  fprintf(stderr, "reboot\n");
-#else
   execl("/sbin/reboot", "/sbin/reboot", NULL);
-#endif
 }
-
-#ifdef DEBUG
-static void trigger_debug(int code) {
-  fprintf(stderr, "pressed %d\n", code);
-}
-#endif
 
 static void handle_event(struct input_event *ie) {
   static time_t last;
   void (*fn)(int);
+  char *name;
 
   switch(ie->code) {
     case KEY_NUMLOCK:
       fn = trigger_switch_port;
+      name = "numlock";
       break;
     case KEY_PRINTSCREEN:
       fn = trigger_reboot;
+      name = "reboot";
       break;
     default:
 #ifdef DEBUG
-      fn = trigger_debug;
+      fn = NULL;
+      name = NULL;
 #else
       return;
 #endif
@@ -85,7 +75,11 @@ static void handle_event(struct input_event *ie) {
         return;
 
       if(pid == 0) {
+#ifdef DEBUG
+        fprintf(stderr, "would execute %s for code %d\n", name, ie->code);
+#else
         fn(ie->code);
+#endif
         _exit(0);
       }
     } else {
