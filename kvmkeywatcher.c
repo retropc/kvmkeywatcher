@@ -10,6 +10,11 @@
 #include <time.h>
 #include <poll.h>
 
+#define DEBUG_DEVICE    0
+
+#define KEY_NUMLOCK     69
+#define KEY_PRINTSCREEN 99
+
 #define OTHER_PORT 2
 #define VENDOR_ID   0x10d5
 #define PRODUCT_ID  0x55a2
@@ -57,10 +62,10 @@ static void handle_event(struct input_event *ie) {
   void (*fn)(int);
 
   switch(ie->code) {
-    case 69: /* numlock */
+    case KEY_NUMLOCK:
       fn = trigger_switch_port;
       break;
-    case 99: /* printscreen */
+    case KEY_PRINTSCREEN:
       fn = trigger_reboot;
       break;
     default:
@@ -209,7 +214,7 @@ int main(void) {
     watched_devices[i] = -1;
 
 #ifdef DEBUG
-  open_device(0);
+  open_device(DEBUG_DEVICE);
 #else
   if(daemon(0, 0) < 0) {
     fprintf(stderr, "unable to daemonise\n");
