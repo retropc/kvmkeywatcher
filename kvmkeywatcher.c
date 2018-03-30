@@ -38,6 +38,14 @@ static void trigger_switch_port(int code) {
 #endif
 }
 
+static void trigger_reboot(int code) {
+#ifdef DEBUG
+  fprintf(stderr, "reboot\n");
+#else
+  execl("/sbin/reboot", "/sbin/reboot", NULL);
+#endif
+}
+
 #ifdef DEBUG
 static void trigger_debug(int code) {
   fprintf(stderr, "pressed %d\n", code);
@@ -51,6 +59,9 @@ static void handle_event(struct input_event *ie) {
   switch(ie->code) {
     case 69: /* numlock */
       fn = trigger_switch_port;
+      break;
+    case 99: /* printscreen */
+      fn = trigger_reboot;
       break;
     default:
 #ifdef DEBUG
