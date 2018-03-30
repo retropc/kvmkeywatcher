@@ -1,7 +1,26 @@
-watches keyboards for numlock pressed twice within 1 second, then instructs TK-207K (cheap USB KVM) to switch to the other port.
+steamlink keyboard watcher utility
 
-used with steam link, so control can be passed between the steam link and a TV PC.
+functionality
+-------------
 
-to build for the steam link, download steam link SDK and before compiling run: source ./setenv.sh
+- double printscreen reboots steamlink
+- double numlock switches kvm port (with cheap TK-207K USB KVM)
 
-then put the binary in /etc/init.d/startup/
+building
+--------
+
+- download steam link SDK
+- cd /path/to/steamlink/sdk
+- source ./setenv.sh
+- cd /path/to/kvmkeywatcher
+- make
+- enable ssh on steamlink: https://github.com/ValveSoftware/steamlink-sdk#ssh-access
+- scp S99kvmkeywatcher-arm root@ip.of.steamlink:/etc/init.d/startup/
+- power cycle steamlink -- functionality should then be active
+
+optionally disable ssh on steamlink by:
+
+- (unplug ssh enabling usb stick if still plugged in)
+- ssh root@ip.of.steamlink
+- rm /mnt/config/system/enable_ssh.txt
+- reboot
